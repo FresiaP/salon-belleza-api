@@ -38,6 +38,35 @@ const marca_controller = {
         } catch (error) {
             res.status(500).json({ error: 'Error al insertar en la BD' });
         }
+    },
+
+    update_marca: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const datosNuevos = req.body;
+
+            await marca_model.update(id, datosNuevos);
+            res.status(200).json({ message: 'Marca actualizada correctamente' });
+        } catch (error) {
+            res.status(500).json({ error: 'Error al actualizar la marca' });
+        }
+    },
+
+    patch_status: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { estado_marca } = req.body;
+
+            // validación: nos aseguramos de que el estado sea un booleano
+            if (typeof estado_marca !== "boolean") {
+                return res.status(400).json({ error: 'El campo estado_marca debe ser true o false' });
+            }
+
+            await marca_model.update_status(id, estado_marca);
+            res.status(200).json({ message: 'Estado de la marca actualizado' });
+        } catch (error) {
+            res.status(500).json({ error: 'Error al actualizar el estado' })
+        }
     }
 };
 

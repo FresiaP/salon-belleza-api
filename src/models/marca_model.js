@@ -40,6 +40,38 @@ const marca_model = {
             console.error("Error al crear nueva marca:", error.message);
             throw error;
         }
+    },
+
+    update: async (id, datosActualizados) => {
+        try {
+            const pool = await getConnection();
+            await pool.request()
+                .input('id', sql.Int, id)
+                .input('nombre', sql.VarChar, datosActualizados.nombre_marca)
+                .input('sitio', sql.VarChar, datosActualizados.sitio_web)
+                .input('estado', sql.Bit, datosActualizados.estado_marca)
+                .query(`UPDATE marca
+                SET nombre_marca = @nombre, sitio_web=@sitio, estado_marca = @estado
+                WHERE id_marca = @id`);
+            return true;
+        } catch (error) {
+            console.error("Error en marcar-model.update:", error.message);
+            throw error;
+        }
+    },
+
+    update_status: async (id, nuevoEstado) => {
+        try {
+            const pool = await getConnection();
+            await pool.request()
+                .input('id', sql.Int, id)
+                .input('estado', sql.Bit, nuevoEstado)
+                .query('UPDATE marca SET estado_marca = @estado WHERE id_marca = @id');
+            return true;
+        } catch (error) {
+            console.error("Error en marca_model.update_status", error.message);
+            throw error;
+        }
     }
 };
 module.exports = marca_model;
