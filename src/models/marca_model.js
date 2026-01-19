@@ -1,6 +1,7 @@
-const { getConnection } = require('../config/db');
+const { getConnection, sql } = require('../config/db');
 
 const marca_model = {
+    // Métodos de lectura
     get_all: async () => {
         try {
             const pool = await getConnection();
@@ -8,6 +9,35 @@ const marca_model = {
             return result.recordset;
         } catch (error) {
             console.error(" Error en marca_model:", error.message);
+            throw error;
+        }
+    },
+
+    get_by_id: async (id) => {
+        try {
+            const pool = await getConnection();
+            const result = await pool.request()
+                .input('id', sql.Int, id)
+                .query('SELECT * FROM marca WHERE id_marca = @id');
+            return result.recordset[0]; // Retornamos solo el primer objeto no el array completo
+        } catch (error) {
+            console.error("Error al obtener el Id de marca:", error.message);
+            throw error;
+        }
+    },
+
+    // Métodos de escritura
+    create: async (nuevaMarca) => {
+        try {
+            const pool = await getConnection();
+            const result = await pool.request()
+                .input('nombre', sql.VarChar, nuevaMarca.nombre_marca)
+                .input('sitio', sql.VarChar, nuevaMarca.sitio_web)
+                .query(`INSERT INTO marca (nombre_marca, sitio_web, estado_marca)
+                VALUES (@nombre, @sitio,1)`);
+            return result;
+        } catch (error) {
+            console.error("Error al crear nueva marca:", error.message);
             throw error;
         }
     }
