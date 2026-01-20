@@ -1,26 +1,31 @@
-const express = require('express');
-const cors = require('cors');
-const { getConnection } = require('./config/db');
-require('dotenv').config();
-const especialidad_routes = require('./routes/especialidad_routes'); // importamos ruta para especialidades
-const marca_route = require('./routes/marca_routes');  // Importamos la ruta para marcas 
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const errorHandler = require("./middleware/error_handler");
+
+// Importación de rutas
+const especialidad_routes = require("./routes/especialidad_routes");
+const marca_routes = require("./routes/marca_routes");
 
 const app = express();
 
-// Middlewares (capa de preparación)
-
+// Middlewares
 app.use(cors());
-app.use(express.json()); // Esto permite que la aplicación entienda formato JSON
-//=======================================================================================================================
-// Llamamos las rutas
-app.use('/api/especialidades', especialidad_routes);
-app.use('/api/marcas', marca_route);
+app.use(express.json());
 
-//=======================================================================================================================
-// Intentar conectar a la base de datos al iniciar
-getConnection();
+// Endpoint de salud (útil para monitoreo)
+app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date() });
+});
 
-const PORT = process.env.PORT || 3000;
+// Rutas versionadas
+app.use("/api/v1/especialidades", especialidad_routes);
+app.use("/api/v1/marcas", marca_routes);
+
+// Middleware de error (último siempre)
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-    console.log(`Servidor listo en http://localhost:${PORT}`);
+    console.log(`✅ Servidor listo en http://localhost:${PORT}`);
 });
