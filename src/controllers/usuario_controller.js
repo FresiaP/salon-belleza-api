@@ -71,6 +71,7 @@ const usuario_controller = {
             }
 
             res.status(201).json({ success: true, message: "Usuario creado correctamente" });
+
         } catch (error) {
             next(error);
         }

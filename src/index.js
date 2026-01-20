@@ -6,6 +6,7 @@ const errorHandler = require("./middleware/error_handler");
 // Importación de rutas
 const especialidad_routes = require("./routes/especialidad_routes");
 const marca_routes = require("./routes/marca_routes");
+const empleado_routes = require("./routes/empleado_routes");
 const usuario_routes = require("./routes/usuario_routes");
 
 const app = express();
@@ -22,6 +23,7 @@ app.get("/api/health", (req, res) => {
 // Rutas versionadas
 app.use("/api/v1/especialidades", especialidad_routes);
 app.use("/api/v1/marcas", marca_routes);
+app.use("/api/v1/empleados", empleado_routes);
 app.use("/api/v1/usuarios", usuario_routes);
 
 // Middleware de error (último siempre)
