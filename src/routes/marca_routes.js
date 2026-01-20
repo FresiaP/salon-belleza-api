@@ -3,14 +3,22 @@ const router = express.Router();
 const marca_controller = require("../controllers/marca_controller");
 const auth = require("../middleware/auth");
 
-//===========================================================================
-//Marcas
-//===========================================================================
-router.get("/", auth("ver_marca"), marca_controller.get_marcas);  // Admin y empleados pueden ver marcas 
-router.get("/", auth("ver_marca"), marca_controller.get_marcas);
-router.get("/:id", auth("ver_marca"), marca_controller.get_marca_id);
-router.post("/", auth("crear_marca"), marca_controller.create_marca); // Solo admin puede crear marcas 
-router.put("/:id", auth("editar_marca"), marca_controller.update_marca);
-router.patch("/:id/status", auth("editar_marca"), marca_controller.patch_status);
+// LISTAR MARCAS (requiere permiso marca_leer)
+router.get("/", auth("marca_leer"), marca_controller.getAllMarcas);
+
+// OBTENER MARCA POR ID (requiere permiso marca_leer)
+router.get("/:id", auth("marca_leer"), marca_controller.getMarcaById);
+
+// CREAR MARCA (requiere permiso marca_crear)
+router.post("/", auth("marca_crear"), marca_controller.createMarca);
+
+// ACTUALIZAR MARCA COMPLETA (requiere permiso marca_editar)
+router.put("/:id", auth("marca_editar"), marca_controller.updateMarca);
+
+// ACTUALIZAR SOLO ESTADO DE MARCA (requiere permiso marca_editar)
+router.patch("/:id/estado", auth("marca_editar"), marca_controller.updateEstado);
+
+// ELIMINAR MARCA (requiere permiso marca_borrar)
+router.delete("/:id", auth("marca_borrar"), marca_controller.deleteMarca);
 
 module.exports = router;

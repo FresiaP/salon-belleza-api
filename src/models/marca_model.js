@@ -1,47 +1,85 @@
 const { poolPromise, sql } = require("../config/db");
 
 const marca_model = {
-    get_all: async () => {
+    // Listar marcas
+    async getMarcas() {
         const pool = await poolPromise;
-        const result = await pool.request().query("SELECT * FROM marca WHERE estado_marca = 1");
+        const result = await pool.request().query(`
+      SELECT id_marca, nombre_marca, sitio_web, estado_marca
+      FROM marca
+    `);
         return result.recordset;
     },
 
-    get_by_id: async (id_marca) => {
+    // Obtener marca por ID
+    async getMarcaById(id_marca) {
         const pool = await poolPromise;
         const result = await pool.request()
             .input("id_marca", sql.Int, id_marca)
-            .query("SELECT * FROM marca WHERE id_marca = @id_marca");
-        return result.recordset[0];
+            .query(`
+      SELECT id_marca, nombre_marca, sitio_web, estado_marca
+      FROM marca
+      WHERE id_marca = @id_marca
+    `);
+        return result.recordset[0] || null;
     },
 
-    create: async (nuevaMarca) => {
+    // Crear marca
+    async createMarca({ nombre_marca, sitio_web, estado_marca }) {
         const pool = await poolPromise;
         const result = await pool.request()
-            .input("nombre_marca", sql.VarChar, nuevaMarca.nombre_marca)
-            .input("sitio_web", sql.VarChar, nuevaMarca.sitio_web)
-            .query("INSERT INTO marca (nombre_marca, sitio_web, estado_marca) VALUES (@nombre_marca, @sitio_web, 1)");
-        return result.rowsAffected; // devolvemos cuántas filas se insertaron
+            .input("nombre_marca", sql.VarChar, nombre_marca)
+            .input("sitio_web", sql.VarChar, sitio_web)
+            .input("estado_marca", sql.Bit, estado_marca)
+            .query(`
+        INSERT INTO marca (nombre_marca, sitio_web, estado_marca)
+        VALUES (@nombre_marca, @sitio_web, @estado_marca)
+      `);
+        return result.rowsAffected[0] > 0;
     },
 
-    update: async (id_marca, datos) => {
+    // Actualizar marca
+    async updateMarca(id_marca, { nombre_marca, sitio_web, estado_marca }) {
         const pool = await poolPromise;
         const result = await pool.request()
             .input("id_marca", sql.Int, id_marca)
-            .input("nombre_marca", sql.VarChar, datos.nombre_marca)
-            .input("sitio_web", sql.VarChar, datos.sitio_web)
-            .input("estado_marca", sql.Bit, datos.estado_marca)
-            .query("UPDATE marca SET nombre_marca=@nombre_marca, sitio_web=@sitio_web, estado_marca=@estado_marca WHERE id_marca=@id_marca");
-        return result.rowsAffected;
+            .input("nombre_marca", sql.VarChar, nombre_marca)
+            .input("sitio_web", sql.VarChar, sitio_web)
+            .input("estado_marca", sql.Bit, estado_marca)
+            .query(`
+        UPDATE marca
+        SET nombre_marca = @nombre_marca,
+            sitio_web = @sitio_web,
+            estado_marca = @estado_marca
+        WHERE id_marca = @id_marca
+      `);
+        return result.rowsAffected[0] > 0;
     },
 
-    update_status: async (id_marca, nuevoEstado) => {
+    // Cambiar solo estado
+    async updateEstado({ id_marca, estado_marca }) {
         const pool = await poolPromise;
         const result = await pool.request()
             .input("id_marca", sql.Int, id_marca)
-            .input("estado_marca", sql.Bit, nuevoEstado)
-            .query("UPDATE marca SET estado_marca=@estado_marca WHERE id_marca=@id_marca");
-        return result.rowsAffected;
+            .input("estado_marca", sql.Bit, estado_marca)
+            .query(`
+        UPDATE marca
+        SET estado_marca = @estado_marca
+        WHERE id_marca = @id_marca
+      `);
+        return result.rowsAffected[0] > 0;
+    },
+
+    // Eliminar marca
+    async deleteMarca(id_marca) {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input("id_marca", sql.Int, id_marca)
+            .query(`
+        DELETE FROM marca
+        WHERE id_marca = @id_marca
+      `);
+        return result.rowsAffected[0] > 0;
     }
 };
 

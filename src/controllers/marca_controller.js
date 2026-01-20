@@ -1,20 +1,27 @@
 const marca_model = require("../models/marca_model");
 
 const marca_controller = {
-    get_marcas: async (req, res, next) => {
+    // LISTAR MARCAS
+    async getAllMarcas(req, res, next) {
         try {
-            const datos = await marca_model.get_all();
+            const datos = await marca_model.getMarcas();
             res.json({ success: true, data: datos });
         } catch (error) {
-            next(error); // delegamos al middleware de error
+            next(error);
         }
     },
 
-    get_marca_id: async (req, res, next) => {
+    // GET MARCA POR ID
+    async getMarcaById(req, res, next) {
         try {
             const { id } = req.params;
-            const marca = await marca_model.get_by_id(parseInt(id));
+            const id_marca = parseInt(id);
 
+            if (isNaN(id_marca)) {
+                return res.status(400).json({ success: false, message: "ID de marca inválido" });
+            }
+
+            const marca = await marca_model.getMarcaById(id_marca);
             if (!marca) {
                 return res.status(404).json({ success: false, message: "Marca no encontrada" });
             }
@@ -25,43 +32,93 @@ const marca_controller = {
         }
     },
 
-    create_marca: async (req, res, next) => {
+    // CREAR MARCA
+    async createMarca(req, res, next) {
         try {
-            const { nombre_marca, sitio_web } = req.body;
-            if (!nombre_marca) {
-                return res.status(400).json({ success: false, message: "El nombre es obligatorio" });
+            const { nombre_marca, sitio_web, estado_marca } = req.body;
+            if (!nombre_marca || estado_marca === undefined) {
+                return res.status(400).json({ success: false, message: "Faltan campos obligatorios" });
             }
 
-            await marca_model.create({ nombre_marca, sitio_web });
-            res.status(201).json({ success: true, message: "Marca creada con éxito" });
+            const creado = await marca_model.createMarca({ nombre_marca, sitio_web, estado_marca });
+            if (!creado) {
+                return res.status(400).json({ success: false, message: "No se pudo crear la marca" });
+            }
+
+            res.status(201).json({ success: true, message: "Marca creada correctamente" });
         } catch (error) {
             next(error);
         }
     },
 
-    update_marca: async (req, res, next) => {
+    // UPDATE MARCA
+    async updateMarca(req, res, next) {
         try {
             const { id } = req.params;
-            const datosNuevos = req.body;
+            const { nombre_marca, sitio_web, estado_marca } = req.body;
 
-            await marca_model.update(parseInt(id), datosNuevos);
+            const id_marca = parseInt(id);
+            if (isNaN(id_marca)) {
+                return res.status(400).json({ success: false, message: "ID de marca inválido" });
+            }
+
+            const actualizado = await marca_model.updateMarca(id_marca, { nombre_marca, sitio_web, estado_marca });
+            if (!actualizado) {
+                return res.status(404).json({ success: false, message: "Marca no encontrada o no actualizada" });
+            }
+
             res.json({ success: true, message: "Marca actualizada correctamente" });
         } catch (error) {
             next(error);
         }
     },
 
-    patch_status: async (req, res, next) => {
+    // UPDATE ESTADO
+    async updateEstado(req, res, next) {
         try {
             const { id } = req.params;
-            const { estado_marca } = req.body;
+            let { estado_marca } = req.body;
 
-            if (typeof estado_marca !== "boolean") {
-                return res.status(400).json({ success: false, message: "El campo estado_marca debe ser true o false" });
+            const id_marca = parseInt(id);
+            if (isNaN(id_marca)) {
+                return res.status(400).json({ success: false, message: "ID de marca inválido" });
             }
 
-            await marca_model.update_status(parseInt(id), estado_marca);
+            if (typeof estado_marca !== "boolean") {
+                if (estado_marca === 0 || estado_marca === 1) {
+                    estado_marca = Boolean(estado_marca);
+                } else {
+                    return res.status(400).json({ success: false, message: "El estado debe ser true/false o 0/1" });
+                }
+            }
+
+            const actualizado = await marca_model.updateEstado({ id_marca, estado_marca });
+            if (!actualizado) {
+                return res.status(404).json({ success: false, message: "Marca no encontrada o no actualizada" });
+            }
+
             res.json({ success: true, message: "Estado de la marca actualizado" });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    // DELETE MARCA
+    async deleteMarca(req, res, next) {
+        try {
+            const { id } = req.params;
+            const id_marca = parseInt(id);
+
+            if (isNaN(id_marca)) {
+                return res.status(400).json({ success: false, message: "ID de marca inválido" });
+            }
+
+            const eliminado = await marca_model.deleteMarca(id_marca);
+            if (!eliminado) {
+                return res.status(404).json({ success: false, message: "Marca no encontrada o no eliminada" });
+            }
+
+            res.json({ success: true, message: "Marca eliminada correctamente" });
         } catch (error) {
             next(error);
         }
