@@ -90,8 +90,6 @@ http://localhost:4000
 
 - GET /api/v1/marcas → Listar marcas (requiere token)
 
-- GET /api/health → Endpoint de salud
-
 ## 🔑 Autenticación
 
 Para acceder a rutas protegidas, primero haz login y obtén un token JWT.
@@ -108,8 +106,6 @@ Authorization: Bearer <JWT_TOKEN>
 ## 📖 Notas
 
 - La carpeta node_modules/ y el archivo .env están en .gitignore para proteger credenciales y evitar subir dependencias innecesarias.
-
-- Recuerda nunca exponer tu JWT_SECRET ni contraseñas reales en un repositorio público.
 
 ## 👤 Autor
 
