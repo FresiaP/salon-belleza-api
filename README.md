@@ -115,4 +115,11 @@ Authorization: Bearer <JWT_TOKEN>
 
 Proyecto desarrollado por Fresia Pichardo como parte de la práctica de APIs con Node.js  y SQL Server.
 
+## 📜 Historial de cambios destacado
+- feat: servidor Express conectado exitosamente a SQL Server
+- feat: endpoint especialidades retornando datos de SQL Server
+- feat: implementación de PATCH para actualización de estado de marcas
+- chore: agrega README inicial con documentación del proyecto
+
+
 
