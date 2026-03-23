@@ -1,26 +1,40 @@
-const empleadoMapper = (emp) => ({
-  id: emp.id_empleado,
-  nombre: emp.nombre_empleado,
-  dni: emp.numero_dni,
-  fechaNacimiento: emp.fecha_nacimiento,
-  telefono: emp.telefono,
-  domicilio: emp.domicilio,
+const toEmpleadoDTO = (emp) => {
+  const dto = {
+    id: emp.id_empleado,
+    nombre: emp.nombre_empleado,
+    dni: emp.numero_dni,
+    fechaNacimiento: emp.fecha_nacimiento,
+    telefono: emp.telefono,
+    domicilio: emp.domicilio,
+    estado: emp.estado,
+  };
 
-  especialidad: emp.id_especialidad
-    ? {
-        id: emp.id_especialidad,
-        nombre: emp.nombre_especialidad,
-      }
-    : null,
+  // =============================
+  // ESPECIALIDAD ANIDADA
+  // =============================
+  if (emp.id_especialidad) {
+    dto.especialidad = {
+      id: emp.id_especialidad,
+      nombre: emp.nombre_especialidad,
+    };
+  } else {
+    dto.especialidad = null;
+  }
 
-  estado: emp.estado,
+  // =============================
+  // AUDITORÍA (opcional)
+  // =============================
+  if (emp.creado_por) dto.creado_por = emp.creado_por;
+  if (emp.fecha_creacion) dto.fecha_creacion = emp.fecha_creacion;
+  if (emp.modificado_por) dto.modificado_por = emp.modificado_por;
+  if (emp.fecha_modificacion) dto.fecha_modificacion = emp.fecha_modificacion;
 
-  auditoria: {
-    creadoPor: emp.creado_por,
-    fechaCreacion: emp.fecha_creacion,
-    modificadoPor: emp.modificado_por,
-    fechaModificacion: emp.fecha_modificacion,
-  },
-});
+  return dto;
+};
 
-module.exports = empleadoMapper;
+const toEmpleadoListDTO = (empleados = []) => empleados.map(toEmpleadoDTO);
+
+module.exports = {
+  toEmpleadoDTO,
+  toEmpleadoListDTO,
+};

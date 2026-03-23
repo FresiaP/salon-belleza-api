@@ -4,132 +4,121 @@
 
 const marcaService = require("./marca.service");
 const asyncHandler = require("../../middleware/asyncHandler");
-const helpers = require("../../utils/helpers");
+const { toMarcaDTO, toMarcaListDTO } = require("./marca.mapper");
 const logger = require("../../utils/logger");
 
-// GET - Listado
-const getAllMarcas = asyncHandler(async (req, res) => {
-  logger.info("Consultando listado de marcas");
+const marca_controller = {
+  // LISTAR TODOS
+  getAllMarcas: asyncHandler(async (req, res) => {
+    logger.info("Consultando listado de marcas");
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const search = req.query.search || null;
-  const estado = req.query.estado;
-  const sort = req.query.sort || "id_marca";
-  const dir = req.query.dir === "asc" ? "asc" : "desc";
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || null;
+    const estado = req.query.estado;
+    const sort = req.query.sort || "id_marca";
+    const dir = req.query.dir === "asc" ? "asc" : "desc";
 
-  const result = await marcaService.getAllMarcas({
-    page,
-    limit,
-    search,
-    estado,
-    sort,
-    dir,
-  });
+    const result = await marcaService.getAllMarcas({
+      page,
+      limit,
+      search,
+      estado,
+      sort,
+      dir,
+    });
 
-  return response.success(res, result, "Listado de marcas obtenido");
-});
+    return res.success(
+      {
+        ...result,
+        data: toMarcaListDTO(result.data),
+      },
+      "Listado de marcas",
+    );
+  }),
 
-// GET - Por ID
-const getMarcaById = asyncHandler(async (req, res) => {
-  const id_marca = helpers.parseId(req.params.id);
+  // OBTENER POR ID
+  getMarcaById: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const id_marca = parseInt(id);
 
-  if (!id_marca) return response.badRequest(res, "ID de marca inválido");
+    if (isNaN(id_marca)) {
+      return res.badRequest("ID inválido");
+    }
 
-  const marca = await marcaService.getMarcaById(id_marca);
-  if (!marca) return response.notFound(res, "Marca no encontrada");
+    const marca = await marcaService.getMarcaById(id_marca);
+    if (!marca) {
+      return res.notFound("Marca no encontrada");
+    }
 
-  return response.success(res, marca, "Marca encontrada");
-});
+    return res.success(toMarcaDTO(marca), "Marca obtenida correctamente");
+  }),
 
-// POST - Crear
-const createMarca = asyncHandler(async (req, res) => {
-  const { nombre_marca, sitio_web, estado_marca } = req.body;
+  // CREAR
+  createMarca: asyncHandler(async (req, res) => {
+    const { nombre_marca } = req.body;
 
-  const nuevaMarca = await marcaService.createMarca({
-    nombre_marca: helpers.cleanString(nombre_marca),
-    sitio_web: sitio_web ? helpers.cleanString(sitio_web) : null,
-    estado_marca: helpers.parseBoolean(estado_marca),
-  });
+    const creado = await marcaService.createMarca({
+      nombre_marca,
+      estado: true,
+      creado_por: req.user.id_usuario,
+    });
 
-  logger.info(`Marca creada: ${helpers.cleanString(nombre_marca)}`);
-  return response.created(res, nuevaMarca, "Marca creada correctamente");
-});
+    return res.success(toMarcaDTO(creado), "Marca creada correctamente");
+  }),
 
-// PUT - Actualizar
-const updateMarca = asyncHandler(async (req, res) => {
-  const id_marca = helpers.parseId(req.params.id);
-  if (!id_marca) return response.badRequest(res, "ID de marca inválido");
+  // ACTUALIZAR
+  updateMarca: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const actualizado = await marcaService.updateMarca(parseInt(id), {
+      ...req.body,
+      modificado_por: req.user.id_usuario,
+    });
 
-  const { nombre_marca, sitio_web, estado_marca } = req.body;
+    if (!actualizado) {
+      return res.notFound("Marca no encontrada o no actualizada");
+    }
 
-  const data = {};
+    return res.success(null, "Marca actualizada correctamente");
+  }),
 
-  if (nombre_marca !== undefined) {
-    data.nombre_marca = helpers.cleanString(nombre_marca);
-  }
+  // ACTUALIZAR SOLO ESTADO
+  updateEstado: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const id_marca = parseInt(id);
 
-  if (sitio_web !== undefined) {
-    data.sitio_web = sitio_web ? helpers.cleanString(sitio_web) : null;
-  }
+    if (isNaN(id_marca)) {
+      return res.badRequest("ID de marca inválido");
+    }
 
-  if (estado_marca !== undefined) {
-    data.estado_marca = helpers.parseBoolean(estado_marca);
-  }
+    const { estado } = req.body;
+    const modificado_por = req.user.id_usuario;
 
-  if (Object.keys(data).length === 0) {
-    return response.badRequest(res, "No se enviaron campos para actualizar");
-  }
+    const actualizado = await marcaService.updateEstado({
+      id_marca,
+      estado,
+      modificado_por,
+    });
 
-  const marcaActualizada = await marcaService.updateMarca(id_marca, data);
+    if (!actualizado) {
+      return res.notFound("Marca no encontrada o no actualizada");
+    }
 
-  if (!marcaActualizada) {
-    return response.notFound(res, "Marca no encontrada");
-  }
+    return res.success(null, "Estado de la marca actualizado correctamente");
+  }),
 
-  logger.info(`Marca actualizada con ID ${id_marca}`);
+  // ELIMINAR
+  deleteMarca: asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
 
-  const marca = await marcaService.getMarcaById(id_marca);
+    const eliminado = await marcaService.deleteMarca(id);
 
-  return response.success(res, marca, "Marca actualizada correctamente");
-});
+    if (!eliminado) {
+      return res.notFound("Marca no encontrada o no eliminada");
+    }
 
-// PATCH - Estado
-const updateEstado = asyncHandler(async (req, res) => {
-  const id_marca = helpers.parseId(req.params.id);
-  if (!id_marca) return response.badRequest(res, "ID de marca inválido");
-
-  // Zod ya validó que estado_marca existe y es booleano
-  const { estado_marca } = req.body;
-
-  const actualizado = await marcaService.updateEstado({
-    id_marca,
-    estado_marca: helpers.parseBoolean(estado_marca),
-  });
-
-  if (!actualizado) return response.notFound(res, "Marca no encontrada");
-
-  logger.info(`Estado de marca actualizado ID ${id_marca}`);
-  return response.success(res, null, "Estado de la marca actualizado");
-});
-
-// DELETE - Eliminar
-const deleteMarca = asyncHandler(async (req, res) => {
-  const id_marca = helpers.parseId(req.params.id);
-  if (!id_marca) return response.badRequest(res, "ID de marca inválido");
-
-  const eliminado = await marcaService.deleteMarca(id_marca);
-  if (!eliminado) return response.notFound(res, "Marca no encontrada");
-
-  logger.info(`Marca eliminada con ID ${id_marca}`);
-  return response.success(res, null, "Marca eliminada correctamente");
-});
-
-module.exports = {
-  getAllMarcas,
-  getMarcaById,
-  createMarca,
-  updateMarca,
-  updateEstado,
-  deleteMarca,
+    return res.success(null, "Marca eliminada correctamente");
+  }),
 };
+
+module.exports = marca_controller;

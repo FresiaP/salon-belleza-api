@@ -56,7 +56,11 @@ const empleado_repository = {
 
     if (estado !== undefined) {
       where += " AND estado = @estado";
-      request.input("estado", sql.Bit, Boolean(estado));
+      request.input(
+        "estado",
+        sql.Bit,
+        estado === true || estado === "true" || estado === 1,
+      );
     }
 
     const dataQuery = `

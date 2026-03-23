@@ -1,5 +1,9 @@
 const especialidadService = require("./especialidad.service");
 const asyncHandler = require("../../middleware/asyncHandler");
+const {
+  toEspecialidadDTO,
+  toEspecialidadListDTO,
+} = require("./especialidad.mapper");
 const logger = require("../../utils/logger");
 
 const especialidad_controller = {
@@ -23,7 +27,13 @@ const especialidad_controller = {
       dir,
     });
 
-    return response.success(res, result, "Listado de especialidades obtenido");
+    return res.success(
+      {
+        ...result,
+        data: toEspecialidadListDTO(result.data),
+      },
+      "Listado de especialidades",
+    );
   }),
 
   // OBTENER POR ID
@@ -32,20 +42,17 @@ const especialidad_controller = {
     const id_especialidad = parseInt(id);
 
     if (isNaN(id_especialidad)) {
-      return res.status(400).json({ success: false, message: "ID inválido" });
+      return res.badRequest("ID inválido");
     }
 
     const especialidad =
       await especialidadService.getEspecialidadById(id_especialidad);
     if (!especialidad) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Especialidad no encontrada" });
+      return res.notFound("Especialidad no encontrada");
     }
 
-    return response.success(
-      res,
-      especialidad,
+    return res.success(
+      toEspecialidadDTO(especialidad),
       "Especialidad obtenida correctamente",
     );
   }),
@@ -56,20 +63,13 @@ const especialidad_controller = {
 
     const creado = await especialidadService.createEspecialidad({
       nombre_especialidad,
+      estado: true,
       creado_por: req.user.id_usuario,
     });
 
-    if (!creado) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No se pudo crear la especialidad" });
-    }
-
-    return response.success(
-      res,
-      null,
+    return res.success(
+      toEspecialidadDTO(creado),
       "Especialidad creada correctamente",
-      201,
     );
   }),
 
@@ -85,17 +85,10 @@ const especialidad_controller = {
     );
 
     if (!actualizado) {
-      return res.status(404).json({
-        success: false,
-        message: "Especialidad no encontrada o no actualizada",
-      });
+      return res.notFound("Especialidad no encontrada o no actualizada");
     }
 
-    return response.success(
-      res,
-      null,
-      "Especialidad actualizada correctamente",
-    );
+    return res.success(null, "Especialidad actualizada correctamente");
   }),
 
   // ACTUALIZAR SOLO ESTADO
@@ -104,9 +97,7 @@ const especialidad_controller = {
     const id_especialidad = parseInt(id);
 
     if (isNaN(id_especialidad)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "ID de especialidad inválido" });
+      return res.badRequest("ID de especialidad inválido");
     }
 
     const { estado } = req.body;
@@ -119,14 +110,10 @@ const especialidad_controller = {
     });
 
     if (!actualizado) {
-      return res.status(404).json({
-        success: false,
-        message: "Especialidad no encontrada o no actualizada",
-      });
+      return res.notFound("Especialidad no encontrada o no actualizada");
     }
 
-    return response.success(
-      res,
+    return res.success(
       null,
       "Estado de la especialidad actualizado correctamente",
     );
@@ -134,32 +121,15 @@ const especialidad_controller = {
 
   // ELIMINAR
   deleteEspecialidad: asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
 
-    try {
-      const eliminado = await especialidadService.deleteEspecialidad(
-        parseInt(id),
-      );
+    const eliminado = await especialidadService.deleteEspecialidad(id);
 
-      if (!eliminado) {
-        return res.status(404).json({
-          success: false,
-          message: "Especialidad no encontrada o no eliminada",
-        });
-      }
-
-      return response.success(
-        res,
-        null,
-        "Especialidad eliminada correctamente",
-      );
-    } catch (error) {
-      // Captura error de FK
-      if (error.message.includes("asociado")) {
-        return res.status(400).json({ success: false, message: error.message });
-      }
-      throw error;
+    if (!eliminado) {
+      return res.notFound("Especialidad no encontrada o no eliminada");
     }
+
+    return res.success(null, "Especialidad eliminada correctamente");
   }),
 };
 

@@ -1,6 +1,6 @@
 const empleadoService = require("./empleado.service");
 const asyncHandler = require("../../middleware/asyncHandler");
-const empleadoMapper = require("./empleado.mapper");
+const { toEmpleadoDTO, toEmpleadoListDTO } = require("./empleado.mapper");
 const logger = require("../../utils/logger");
 
 const empleado_controller = {
@@ -27,7 +27,7 @@ const empleado_controller = {
     return res.success(
       {
         ...result,
-        data: result.data.map(empleadoMapper),
+        data: toEmpleadoListDTO(result.data),
       },
       "Listado de empleados",
     );
@@ -41,13 +41,13 @@ const empleado_controller = {
     if (isNaN(id_empleado)) {
       return res.badRequest("ID inválido");
     }
-
+    const empleado = await empleadoService.getEmpleadoById(id_empleado);
     if (!empleado) {
       return res.notFound("Empleado no encontrado");
     }
 
     return res.success(
-      empleadoMapper(empleado),
+      toEmpleadoDTO(empleado),
       "Empleado obtenido correctamente",
     );
   }),
@@ -73,7 +73,7 @@ const empleado_controller = {
       creado_por: req.user.id_usuario,
     });
 
-    return res.created(empleadoMapper(creado), "Empleado creado correctamente");
+    return res.created(toEmpleadoDTO(creado), "Empleado creado correctamente");
   }),
 
   // ACTUALIZAR
@@ -97,9 +97,7 @@ const empleado_controller = {
     const id_empleado = parseInt(id);
 
     if (isNaN(id_empleado)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "ID de empleado inválido" });
+      return res.badRequest("ID de empleado inválido");
     }
 
     const { estado } = req.body;
@@ -110,10 +108,6 @@ const empleado_controller = {
       estado,
       modificado_por,
     });
-
-    if (isNaN(id_empleado)) {
-      return res.badRequest("ID de empleado inválido");
-    }
 
     if (!actualizado) {
       return res.notFound("Empleado no encontrado o no actualizado");
