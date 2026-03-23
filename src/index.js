@@ -1,35 +1,21 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const errorHandler = require("./middleware/error_handler");
 
-// Importación de rutas
-const especialidad_routes = require("./routes/especialidad_routes");
-const marca_routes = require("./routes/marca_routes");
-const empleado_routes = require("./routes/empleado_routes");
-const usuario_routes = require("./routes/usuario_routes");
+const app = require("./app");
+const logger = require("./utils/logger");
 
-const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
+try {
 
-// Endpoint de salud (útil para monitoreo)
-app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date() });
-});
+    app.listen(PORT, () => {
 
-// Rutas versionadas
-app.use("/api/v1/especialidades", especialidad_routes);
-app.use("/api/v1/marcas", marca_routes);
-app.use("/api/v1/empleados", empleado_routes);
-app.use("/api/v1/usuarios", usuario_routes);
+        logger.info(`Servidor ejecutándose en puerto ${PORT}`);
 
-// Middleware de error (último siempre)
-app.use(errorHandler);
+    });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-    console.log(`✅ Servidor listo en http://localhost:${PORT}`);
-});
+} catch (error) {
+
+    logger.error("Error al iniciar el servidor", error);
+    process.exit(1);
+
+}

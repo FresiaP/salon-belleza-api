@@ -1,17 +1,36 @@
-// Este es un "Interceptor" de errores
+const logger = require("../utils/logger");
+
 const errorHandler = (err, req, res, next) => {
-    console.error('--- ERROR DETECTADO ---');
-    console.error(err.stack); // Muestra dónde falló el código exactamente
+
+    // 🚨 Manejo específico: DNI duplicado (SQL Server)
+    if (err.number === 2627 || err.number === 2601) {
+        return res.status(400).json({
+            success: false,
+            message: "El número de DNI ya está registrado",
+            data: null,
+            timestamp: new Date().toISOString()
+        });
+    }
 
     const status = err.statusCode || 500;
-    const message = err.message || 'Error interno del servidor';
+    const message = err.message || "Error interno del servidor";
 
-    res.status(status).json({
-        success: false,
+    // Log del error
+    logger.error("Error detectado", {
+        message: err.message,
         status: status,
+        stack: err.stack,
+        url: req.originalUrl,
+        method: req.method,
+        ip: req.ip
+    });
+
+    return res.status(status).json({
+        success: false,
         message: message,
-        // En desarrollo mostramos el error completo, en producción no.
-        stack: process.env.NODE_ENV === 'development' ? err.stack : {}
+        data: null,
+        timestamp: new Date().toISOString(),
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined
     });
 };
 

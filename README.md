@@ -105,6 +105,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ## 📖 Notas
 
+- La base de datos SQL Server se ejecuta en un contenedor Docker para facilitar la configuración.
 - La carpeta node_modules/ y el archivo .env están en .gitignore para proteger credenciales y evitar subir dependencias innecesarias.
 
 ## 👤 Autor
