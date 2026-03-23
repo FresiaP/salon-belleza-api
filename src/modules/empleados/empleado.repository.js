@@ -56,7 +56,7 @@ const empleado_repository = {
 
     if (estado !== undefined) {
       where += " AND estado = @estado";
-      request.input("estado", sql.Bit, estado === "true");
+      request.input("estado", sql.Bit, Boolean(estado));
     }
 
     const dataQuery = `
@@ -196,13 +196,26 @@ const empleado_repository = {
   // Eliminar empleado
   async deleteEmpleado(id_empleado) {
     const pool = await poolPromise;
-    const result = await pool
-      .request()
-      .input("id_empleado", sql.Int, id_empleado).query(`
+
+    try {
+      const result = await pool
+        .request()
+        .input("id_empleado", sql.Int, id_empleado).query(`
         DELETE FROM empleado
         WHERE id_empleado = @id_empleado
       `);
-    return result.rowsAffected[0] > 0;
+
+      return result.rowsAffected[0] > 0;
+    } catch (error) {
+      // SQL Server FK violation
+      if (error.number === 547) {
+        const customError = new Error("FK_CONSTRAINT");
+        customError.code = "FK_CONSTRAINT";
+        throw customError;
+      }
+
+      throw error;
+    }
   },
 };
 

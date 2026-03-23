@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const usuario_service = require("./usuario.service");
 const { toUsuarioDTO, toUsuarioListDTO } = require("./usuario.mapper");
-const asyncHandler = require("../../middleware/async_handler");
+const asyncHandler = require("../../middleware/asyncHandler");
 
 const usuario_controller = {
   // =============================
@@ -12,46 +12,25 @@ const usuario_controller = {
   login: asyncHandler(async (req, res) => {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.badRequest("Username y password son obligatorios");
-    }
-
     const usuario = await usuario_service.getUsuarioByUsername(username);
 
     if (!usuario) {
-      return res.status(401).json({
-        success: false,
-        message: "Usuario o contraseña incorrectos",
-      });
+      return res.unauthorized("Usuario o contraseña incorrectos");
     }
 
     if (!usuario.estado) {
-      return res.status(403).json({
-        success: false,
-        message: "Usuario inactivo",
-      });
+      return res.forbidden("Usuario inactivo");
     }
 
     const validPassword = await bcrypt.compare(password, usuario.password_hash);
 
     if (!validPassword) {
-      return res.status(401).json({
-        success: false,
-        message: "Usuario o contraseña incorrectos",
-      });
+      return res.unauthorized("Usuario o contraseña incorrectos");
     }
 
-    const pool = await poolPromise;
-    const permisosResult = await pool
-      .request()
-      .input("id_rol", sql.Int, usuario.id_rol).query(`
-                SELECT p.nombre_permiso
-                FROM rol_permiso rp
-                JOIN permiso p ON rp.id_permiso = p.id_permiso
-                WHERE rp.id_rol = @id_rol
-            `);
+    const permisosRaw = await usuario_service.getPermisosByRol(usuario.id_rol);
 
-    const permisos = permisosResult.recordset.map((p) => p.nombre_permiso);
+    const permisos = permisosRaw.map((p) => p.nombre_permiso);
 
     const token = jwt.sign(
       {
@@ -86,7 +65,7 @@ const usuario_controller = {
     return res.success(
       {
         ...datos,
-        data: datos.data.map((usuario) => toUsuarioListDTO(usuario)),
+        data: toUsuarioListDTO(datos.data),
       },
       "Listado de usuarios",
     );
@@ -97,10 +76,6 @@ const usuario_controller = {
   // =============================
   createUsuario: asyncHandler(async (req, res) => {
     const { username, password, id_rol, id_empleado } = req.body;
-
-    if (!username || !password || !id_rol) {
-      return res.badRequest("Faltan campos obligatorios");
-    }
 
     const creado = await usuario_service.createUsuario({
       username,
@@ -180,14 +155,6 @@ const usuario_controller = {
     }
 
     let { estado } = req.body;
-
-    if (typeof estado !== "boolean") {
-      if (estado === 0 || estado === 1) {
-        estado = Boolean(estado);
-      } else {
-        return res.badRequest("El estado debe ser true/false o 0/1");
-      }
-    }
 
     const actualizado = await usuario_service.updateEstado({
       id_usuario,
