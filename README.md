@@ -1,122 +1,175 @@
-# Salon Belleza API 💇‍♀️💅
+# 💇‍♀️ Salon Belleza API
 
-API RESTful para la gestión de un salón de belleza. Permite administrar empleados, usuarios, marcas, especialidades y más, con autenticación basada en JWT.
+API RESTful para la gestión de un salón de belleza, desarrollada con Node.js, Express y SQL Server.
+Este proyecto implementa una arquitectura modular siguiendo buenas prácticas para aplicaciones backend escalables.
 
 ---
 
-## 🚀 Tecnologías utilizadas
-- Node.js + Express (Backend)
-- SQL Server / MSSQL (Base de datos)
-- JWT (Autenticación segura)
-- bcrypt (Hash de contraseñas)
-- CORS (Seguridad de peticiones)
+## 🚀 Características
+
+* Autenticación con JWT
+* Gestión de usuarios
+* Gestión de empleados
+* Manejo de roles
+* Validación de datos con Zod
+* Manejo centralizado de errores
+* Arquitectura modular (controller, service, repository)
+* Conexión a SQL Server
+* Logging estructurado
+
 ---
 
-## 📦 Instalación
+## 🧱 Tecnologías utilizadas
 
-1. Clona el repositorio:  
+* Node.js
+* Express.js
+* SQL Server
+* Zod (validaciones)
+* JWT (autenticación)
+* Bcrypt (hash de contraseñas)
+* Dotenv (variables de entorno)
+* Nodemon (entorno de desarrollo)
 
-```bash
-   git clone https://github.com/<tu-usuario>/salon-belleza-api.git
-   cd salon-belleza-api 
-``` 
-2. Instala las dependencias:
+---
 
-```bash
-   npm install
+## 📁 Estructura del proyecto
+
+```
+src/
+│
+├── modules/
+│   ├── usuario/
+│   ├── empleado/
+│   ├── ...
+│
+├── middleware/
+│   ├── auth.js
+│   ├── error_handler.js
+│   ├── validate.js
+│   ├── async_handler.js
+│   ├── response_handler.js
+│
+├── utils/
+│   ├── response.js
+│
+├── config/
+│
+├── app.js
+├── index.js
 ```
 
-3. Crea un archivo .env en la raíz del proyecto con las siguientes variables:
+---
 
-```env
+## ⚙️ Instalación y uso
+
+### 1. Clonar el repositorio
+
+```
+git clone https://github.com/FresiaP/salon-belleza-api.git
+cd salon-belleza-api
+```
+
+---
+
+### 2. Instalar dependencias
+
+```
+npm install
+```
+
+---
+
+### 3. Configurar variables de entorno
+
+Crear un archivo `.env` en la raíz del proyecto:
+
+```
 PORT=4000
-DB_USER=sa
+DB_USER=tu_usuario
 DB_PASSWORD=tu_password
 DB_SERVER=localhost
-DB_DATABASE=salon_belleza_db
-DB_PORT=1433
-
-JWT_SECRET=ContraseñaSeguraSecretaDificilDeAdivinar
+DB_DATABASE=nombre_bd
+JWT_SECRET=tu_secreto
 ```
 
-## ▶️ Ejecución
+---
 
-Inicia el servidor en modo desarrollo:
+### 4. Ejecutar el proyecto
 
-```bash
+```
 npm run dev
 ```
 
-El servidor estará disponible en:
-
-http://localhost:4000
-
----
-
-## 🗂️ Arquitectura de la API
-
-```text
-[ Cliente / Usuario ]
-        |
-        v
- [ Login / Autenticación ]
-        |
-   (JWT Token emitido)
-        |
-        v
- [ API REST (Express) ]
-        |
-        v
- [ SQL Server / Base de datos ]
+Servidor disponible en:
 
 ```
+http://localhost:4000
+```
+
 ---
 
-### 📌 Explicación rápida
-- El **cliente/usuario** hace login.  
-- El servidor genera un **JWT Token**.  
-- Con ese token, el cliente accede a las **rutas protegidas de la API**.  
-- La API se comunica con la **base de datos SQL Server** para devolver la información solicitada.  
+## 🔐 Autenticación
+
+El sistema utiliza JWT para proteger rutas.
+Debes iniciar sesión para obtener un token y usarlo en las peticiones:
+
+```
+Authorization: Bearer TOKEN
+```
 
 ---
 
 ## 📌 Endpoints principales
 
-- POST /api/v1/empleados → Crear empleado
+### Usuarios
 
-- POST /api/v1/usuarios → Crear usuario
+* GET /usuarios
+* GET /usuarios/:id
+* POST /usuarios
+* PUT /usuarios/:id
+* DELETE /usuarios/:id
 
-- POST /api/v1/usuarios/login → Login y obtención de token
+---
 
-- GET /api/v1/marcas → Listar marcas (requiere token)
+### Empleados
 
-## 🔑 Autenticación
+* GET /empleados
+* POST /empleados
+* ...
 
-Para acceder a rutas protegidas, primero haz login y obtén un token JWT.
-En Postman o cualquier cliente HTTP, agrega el header:
+---
 
-Authorization: Bearer <JWT_TOKEN>
+*(Completando según avances del proyecto)*
 
-## 🛠️ Scripts útiles:
+---
 
-- npm run dev → Ejecuta con nodemon
+## 🧠 Arquitectura
 
-- npm start → Ejecuta en modo producción
+El proyecto sigue una arquitectura por capas:
 
-## 📖 Notas
+* Controller → Maneja la solicitud HTTP
+* Service → Lógica de negocio
+* Repository → Acceso a datos
+* Middleware → Validaciones, auth, errores
 
-- La base de datos SQL Server se ejecuta en un contenedor Docker para facilitar la configuración.
-- La carpeta node_modules/ y el archivo .env están en .gitignore para proteger credenciales y evitar subir dependencias innecesarias.
+Esto permite mantener el código organizado, escalable y fácil de mantener.
 
-## 👤 Autor
+---
 
-Proyecto desarrollado por Fresia Pichardo como parte de la práctica de APIs con Node.js  y SQL Server.
+## 📊 Estado del proyecto
 
-## 📜 Historial de cambios destacado
-- feat: servidor Express conectado exitosamente a SQL Server
-- feat: endpoint especialidades retornando datos de SQL Server
-- feat: implementación de PATCH para actualización de estado de marcas
-- chore: agrega README inicial con documentación del proyecto
+🚧 En desarrollo
+Este proyecto está en constante mejora como parte de un proceso de aprendizaje enfocado en desarrollo backend profesional.
 
+---
 
+## 👩‍💻 Autor
 
+Desarrollado por Fresia Pichardo
+Backend Developer en formación
+
+---
+
+## 📌 Notas
+
+Este proyecto forma parte de mi portafolio profesional y refleja mis conocimientos en desarrollo backend con JavaScript y Node.js.
