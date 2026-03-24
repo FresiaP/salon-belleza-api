@@ -7,6 +7,8 @@ const errorHandler = require("./middleware/errorHandler");
 const empleadoRoutes = require("./modules/empleados/empleado.routes");
 const usuarioRoutes = require("./modules/usuarios/usuario.routes");
 const marcaRoutes = require("./modules/marcas/marca.routes");
+const modeloRoutes = require("./modules/modelos/modelo.routes");
+const tipoActivoRoutes = require("./modules/tipos_activos/tipo_activo.routes");
 const especialidadRoutes = require("./modules/especialidades/especialidad.routes");
 const proveedorRoutes = require("./modules/proveedores/proveedor.routes");
 const clienteRoutes = require("./modules/clientes/cliente.routes");
@@ -37,6 +39,8 @@ app.use((req, res, next) => {
 app.use("/api/empleados", empleadoRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/marcas", marcaRoutes);
+app.use("/api/modelos", modeloRoutes);
+app.use("/api/tipos-activos", tipoActivoRoutes);
 app.use("/api/especialidades", especialidadRoutes);
 app.use("/api/proveedores", proveedorRoutes);
 app.use("/api/clientes", clienteRoutes);
