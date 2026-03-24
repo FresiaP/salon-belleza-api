@@ -13,6 +13,7 @@ const estadoActivoRoutes = require("./modules/estados_activos/estado_activo.rout
 const activoRoutes = require("./modules/activos/activo.routes");
 const equipoSalonRoutes = require("./modules/equipos_salon/equipo_salon.routes");
 const incidenciaRoutes = require("./modules/incidencias/incidencia.routes");
+const protocoloServicioRoutes = require("./modules/protocolos_servicios/protocolo_servicio.routes");
 const ventaRoutes = require("./modules/ventas/venta.routes");
 const detalleVentaRoutes = require("./modules/detalles_venta/detalle_venta.routes");
 const citaServicioRoutes = require("./modules/citas_servicios/cita_servicio.routes");
@@ -52,6 +53,7 @@ app.use("/api/estados-activos", estadoActivoRoutes);
 app.use("/api/activos", activoRoutes);
 app.use("/api/equipos-salon", equipoSalonRoutes);
 app.use("/api/incidencias", incidenciaRoutes);
+app.use("/api/protocolos-servicios", protocoloServicioRoutes);
 app.use("/api/ventas", ventaRoutes);
 app.use("/api/detalles-venta", detalleVentaRoutes);
 app.use("/api/citas-servicios", citaServicioRoutes);
