@@ -1,8 +1,8 @@
 const toMarcaDTO = (esp) => {
   const dto = {
     id: esp.id_marca,
-    nombre: esp.nombre_marca,
-    sitio: esp.sitio_web,
+    nombre_marca: esp.nombre_marca,
+    sitio_web: esp.sitio_web,
     estado: esp.estado,
   };
 

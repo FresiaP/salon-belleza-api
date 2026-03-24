@@ -56,10 +56,11 @@ const marca_controller = {
 
   // CREAR
   createMarca: asyncHandler(async (req, res) => {
-    const { nombre_marca } = req.body;
+    const { nombre_marca, sitio_web } = req.body;
 
     const creado = await marcaService.createMarca({
-      nombre_marca,
+      nombre_marca: nombre_marca,
+      sitio_web: sitio_web || null,
       estado: true,
       creado_por: req.user.id_usuario,
     });

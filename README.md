@@ -46,13 +46,13 @@ src/
 │
 ├── middleware/
 │   ├── auth.js
-│   ├── error_handler.js
+│   ├── errorHandler.js
 │   ├── validate.js
-│   ├── async_handler.js
-│   ├── response_handler.js
+│   ├── asyncHandler.js
+│   ├── responseHandler.js
 │
 ├── utils/
-│   ├── response.js
+│   ├── logger.js
 │
 ├── config/
 │
@@ -108,24 +108,15 @@ Crear un archivo `.env` en la raíz del proyecto:
 ```
 PORT=4000
 DB_USER=tu_usuario
-DB_USER=tu_usuario
 DB_PASSWORD=tu_password
 DB_SERVER=localhost
 DB_DATABASE=nombre_bd
 JWT_SECRET=tu_secreto
-DB_DATABASE=nombre_bd
-JWT_SECRET=tu_secreto
 ```
 
 ---
 
 ### 4. Ejecutar el proyecto
-
----
-
-### 4. Ejecutar el proyecto
-
-```
 
 ```
 
@@ -134,12 +125,13 @@ npm run dev
 ```
 
 Servidor disponible en:
-Servidor disponible en:
 
 ```
 
 ```
+
 http://localhost:4000
+
 ```
 
 ```
@@ -154,18 +146,6 @@ Debes iniciar sesión para obtener un token y usarlo en las peticiones:
 ```
 
 Authorization: Bearer TOKEN
-
-```
-## 🔐 Autenticación
-
-El sistema utiliza JWT para proteger rutas.
-Debes iniciar sesión para obtener un token y usarlo en las peticiones:
-
-```
-
-Authorization: Bearer TOKEN
-
-```
 
 ---
 

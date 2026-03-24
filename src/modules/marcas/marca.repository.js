@@ -11,7 +11,6 @@ SELECT
   creado_por,
   fecha_creacion,
   modificado_por,
-  fecha_modificacion
 FROM marca`;
 
 const marca_repository = {
@@ -85,17 +84,16 @@ const marca_repository = {
   },
 
   // Crear marca
-  async createMarca({ nombre_marca, sitio_web, estado }) {
+  async createMarca({ nombre_marca, sitio_web }) {
     const pool = await poolPromise;
 
     const result = await pool
       .request()
       .input("nombre_marca", sql.VarChar, nombre_marca)
-      .input("sitio_web", sql.VarChar, sitio_web)
-      .input("estado", sql.Bit, estado).query(`
-    INSERT INTO marca (nombre_marca, sitio_web, estado)
+      .input("sitio_web", sql.VarChar, sitio_web).query(`
+    INSERT INTO marca (nombre_marca, sitio_web)
     OUTPUT INSERTED.*
-    VALUES (@nombre_marca, @sitio_web, @estado)
+    VALUES (@nombre_marca, @sitio_web)
 `);
 
     return result.recordset[0];
