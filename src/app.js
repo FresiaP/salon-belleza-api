@@ -15,6 +15,7 @@ const equipoSalonRoutes = require("./modules/equipos_salon/equipo_salon.routes")
 const incidenciaRoutes = require("./modules/incidencias/incidencia.routes");
 const protocoloServicioRoutes = require("./modules/protocolos_servicios/protocolo_servicio.routes");
 const insumoProtocoloRoutes = require("./modules/insumos_protocolos/insumo_protocolo.routes");
+const productoSalonRoutes = require("./modules/productos_salon/producto_salon.routes");
 const ventaRoutes = require("./modules/ventas/venta.routes");
 const detalleVentaRoutes = require("./modules/detalles_venta/detalle_venta.routes");
 const citaServicioRoutes = require("./modules/citas_servicios/cita_servicio.routes");
@@ -56,6 +57,7 @@ app.use("/api/equipos-salon", equipoSalonRoutes);
 app.use("/api/incidencias", incidenciaRoutes);
 app.use("/api/protocolos-servicios", protocoloServicioRoutes);
 app.use("/api/insumos-protocolos", insumoProtocoloRoutes);
+app.use("/api/productos-salon", productoSalonRoutes);
 app.use("/api/ventas", ventaRoutes);
 app.use("/api/detalles-venta", detalleVentaRoutes);
 app.use("/api/citas-servicios", citaServicioRoutes);
