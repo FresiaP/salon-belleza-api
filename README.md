@@ -1,206 +1,160 @@
-# 💇‍♀️ Salon Belleza API
+# Salon Belleza API
 
-# 💇‍♀️ Salon Belleza API
+API REST para la gestion de un salon de belleza, desarrollada con Node.js, Express y SQL Server.
 
-API RESTful para la gestión de un salón de belleza, desarrollada con Node.js, Express y SQL Server.
-Este proyecto implementa una arquitectura modular siguiendo buenas prácticas para aplicaciones backend escalables.
+## Descripcion
 
----
+Este backend implementa una arquitectura modular por dominio con capas de controller, service, repository y validacion.
+Incluye autenticacion con JWT, control de permisos por recurso y manejo centralizado de errores.
 
-## 🚀 Características
-
-- Autenticación con JWT
-- Gestión de usuarios
-- Gestión de empleados
-- Manejo de roles
-- Validación de datos con Zod
-- Manejo centralizado de errores
-- Arquitectura modular (controller, service, repository)
-- Conexión a SQL Server
-- Logging estructurado
-
----
-
-## 🧱 Tecnologías utilizadas
+## Tecnologias
 
 - Node.js
-- Express.js
-- SQL Server
-- Zod (validaciones)
-- JWT (autenticación)
-- Bcrypt (hash de contraseñas)
-- Dotenv (variables de entorno)
-- Nodemon (entorno de desarrollo)
+- Express
+- SQL Server (mssql)
+- Zod
+- JSON Web Token
+- bcrypt
+- dotenv
+- nodemon
 
----
+## Requisitos
 
-## 📁 Estructura del proyecto
+- Node.js 18 o superior
+- SQL Server disponible
+- Base de datos configurada con el esquema del proyecto
 
-```
-src/
-│
-├── modules/
-│   ├── usuario/
-│   ├── empleado/
-│   ├── ...
-│
-├── middleware/
-│   ├── auth.js
-│   ├── errorHandler.js
-│   ├── validate.js
-│   ├── asyncHandler.js
-│   ├── responseHandler.js
-│
-├── utils/
-│   ├── logger.js
-│
-├── config/
-│
-├── app.js
-├── index.js
-```
+## Instalacion
 
----
+1. Clona el repositorio:
 
-## ⚙️ Instalación y uso
-
-### 1. Clonar el repositorio
-
-```
+```bash
 git clone https://github.com/FresiaP/salon-belleza-api.git
 cd salon-belleza-api
 ```
 
----
+2. Instala dependencias:
 
-### 2. Instalar dependencias
-
-```
-git clone https://github.com/FresiaP/salon-belleza-api.git
-cd salon-belleza-api
-```
-
----
-
-### 2. Instalar dependencias
-
-```
+```bash
 npm install
 ```
 
-npm install
+3. Crea un archivo .env en la raiz:
 
-```
-
----
-
-### 3. Configurar variables de entorno
-
-Crear un archivo `.env` en la raíz del proyecto:
----
-
-### 3. Configurar variables de entorno
-
-Crear un archivo `.env` en la raíz del proyecto:
-
-```
-
-```
+```env
 PORT=4000
 DB_USER=tu_usuario
 DB_PASSWORD=tu_password
 DB_SERVER=localhost
 DB_DATABASE=nombre_bd
-JWT_SECRET=tu_secreto
+DB_PORT=1433
+JWT_SECRET=tu_secreto_super_seguro
 ```
 
----
+## Scripts
 
-### 4. Ejecutar el proyecto
+- npm run dev: inicia el servidor con nodemon
+- npm start: inicia el servidor en modo normal
+- npm test: script placeholder (no hay pruebas configuradas actualmente)
 
-```
+## Ejecucion
 
+Modo desarrollo:
+
+```bash
 npm run dev
-
 ```
 
-Servidor disponible en:
+Modo produccion/local:
 
+```bash
+npm start
 ```
 
+Servidor por defecto:
+
+- http://localhost:4000 (si defines PORT=4000)
+- http://localhost:3000 (si PORT no esta definido)
+
+## Autenticacion y permisos
+
+- El login es publico en POST /api/usuarios/login
+- El resto de endpoints usan JWT y, en la mayoria de casos, validan permisos especificos
+- Envia el token en el header:
+
+```http
+Authorization: Bearer TU_TOKEN
 ```
 
-http://localhost:4000
+## Prefijo de rutas
 
+Todas las rutas del API usan el prefijo:
+
+```text
+/api
 ```
 
+## Modulos principales
+
+- /api/usuarios
+- /api/empleados
+- /api/clientes
+- /api/roles (roles y roles-permisos)
+- /api/permisos
+- /api/lookups
+- /api/marcas
+- /api/modelos
+- /api/tipos-activos
+- /api/estados-activos
+- /api/activos
+- /api/equipos-salon
+- /api/incidencias
+- /api/protocolos-servicios
+- /api/insumos-protocolos
+- /api/productos-salon
+- /api/ventas
+- /api/detalles-venta
+- /api/citas-servicios
+- /api/especialidades
+- /api/proveedores
+
+## Estructura del proyecto
+
+```text
+src/
+	app.js
+	index.js
+	config/
+		db.js
+	middleware/
+		asyncHandler.js
+		auth.js
+		errorHandler.js
+		responseHandler.js
+		validate.js
+	modules/
+		<modulo>/
+			*.controller.js
+			*.service.js
+			*.repository.js
+			*.validation.js
+			*.mapper.js
+			*.routes.js
+	utils/
+		helpers.js
+		logger.js
 ```
 
----
+## Respuestas y errores
 
-## 🔐 Autenticación
+- Existe middleware para estandarizar respuestas en exito/error
+- Las rutas no encontradas responden 404 con mensaje Ruta no encontrada
+- Los errores no controlados pasan por el manejador global
 
-El sistema utiliza JWT para proteger rutas.
-Debes iniciar sesión para obtener un token y usarlo en las peticiones:
+## Estado
 
-```
+Proyecto en desarrollo activo.
 
-Authorization: Bearer TOKEN
+## Autor
 
----
-
-## 📌 Endpoints principales
-
-### Usuarios
-
-- GET /usuarios
-- GET /usuarios/:id
-- POST /usuarios
-- PUT /usuarios/:id
-- DELETE /usuarios/:id
-
----
-
-### Empleados
-
-- GET /empleados
-- POST /empleados
-- ...
-
----
-
-_(Completar según avances del proyecto)_
-
----
-
-## 🧠 Arquitectura
-
-El proyecto sigue una arquitectura por capas:
-
-- Controller → Maneja la solicitud HTTP
-- Service → Lógica de negocio
-- Repository → Acceso a datos
-- Middleware → Validaciones, auth, errores
-
-Esto permite mantener el código organizado, escalable y fácil de mantener.
-
----
-
-## 📊 Estado del proyecto
-
-🚧 En desarrollo
-Este proyecto está en constante mejora como parte de un proceso de aprendizaje enfocado en desarrollo backend profesional.
-
----
-
-## 👩‍💻 Autor
-
-Desarrollado por Fresia Pichardo
-Backend Developer en formación
-
----
-
-## 📌 Notas
-
-Este proyecto forma parte de mi portafolio profesional y refleja mis conocimientos en desarrollo backend con JavaScript y Node.js.
-```
+Desarrollado por Fresia Pichardo.
