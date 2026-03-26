@@ -6,6 +6,10 @@ const errorHandler = require("./middleware/errorHandler");
 // Rutas
 const empleadoRoutes = require("./modules/empleados/empleado.routes");
 const usuarioRoutes = require("./modules/usuarios/usuario.routes");
+const lookupRoutes = require("./modules/lookups/lookup.routes");
+const rolRoutes = require("./modules/roles/rol.routes");
+const permisoRoutes = require("./modules/permisos/permiso.routes");
+const rolPermisoRoutes = require("./modules/roles_permisos/rol_permiso.routes");
 const marcaRoutes = require("./modules/marcas/marca.routes");
 const modeloRoutes = require("./modules/modelos/modelo.routes");
 const tipoActivoRoutes = require("./modules/tipos_activos/tipo_activo.routes");
@@ -48,6 +52,10 @@ app.use((req, res, next) => {
 
 app.use("/api/empleados", empleadoRoutes);
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/lookups", lookupRoutes);
+app.use("/api/roles", rolRoutes);
+app.use("/api/permisos", permisoRoutes);
+app.use("/api/roles", rolPermisoRoutes);
 app.use("/api/marcas", marcaRoutes);
 app.use("/api/modelos", modeloRoutes);
 app.use("/api/tipos-activos", tipoActivoRoutes);

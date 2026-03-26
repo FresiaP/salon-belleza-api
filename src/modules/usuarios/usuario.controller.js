@@ -59,8 +59,13 @@ const usuario_controller = {
   getAllUsuarios: asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || null;
 
-    const datos = await usuario_service.getAllUsuarios({ page, limit });
+    const datos = await usuario_service.getAllUsuarios({
+      page,
+      limit,
+      search,
+    });
 
     return res.success(
       {

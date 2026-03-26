@@ -39,24 +39,51 @@ LEFT JOIN empleado e ON u.id_empleado = e.id_empleado
 
 const usuario_repository = {
   // Listar usuarios
-  async getUsuarios({ page = 1, limit = 10 }) {
+  async getUsuarios({ page = 1, limit = 10, search }) {
     const pool = await poolPromise;
-    const offset = (page - 1) * limit;
+    const safePage = Math.max(parseInt(page, 10) || 1, 1);
+    const safeLimit = Math.max(parseInt(limit, 10) || 10, 1);
+    const rowStart = (safePage - 1) * safeLimit + 1;
+    const rowEnd = rowStart + safeLimit - 1;
     const request = pool.request();
+    let where = "WHERE 1=1";
+
+    if (search) {
+      where += `
+        AND (
+          CAST(u.id_usuario AS VARCHAR(20)) LIKE @search
+          OR u.username LIKE @search
+          OR r.nombre_rol LIKE @search
+          OR e.nombre_empleado LIKE @search
+        )`;
+      request.input("search", sql.VarChar, `%${search}%`);
+    }
+
     const dataQuery = `
-        ${baseSelect}
-        ORDER BY u.id_usuario DESC
-        OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY
+        SELECT *
+        FROM (
+          SELECT
+            base_result.*,
+            ROW_NUMBER() OVER (ORDER BY id_usuario DESC) AS row_num
+          FROM (
+            ${baseSelect}
+            ${where}
+          ) AS base_result
+        ) AS paginated
+        WHERE row_num BETWEEN @rowStart AND @rowEnd
+        ORDER BY row_num
     `;
 
     const countQuery = `
         SELECT COUNT(*) as total
         FROM usuario u
+        LEFT JOIN rol r ON u.id_rol = r.id_rol
+        LEFT JOIN empleado e ON u.id_empleado = e.id_empleado
+        ${where}
     `;
 
-    request.input("offset", sql.Int, offset);
-    request.input("limit", sql.Int, limit);
+    request.input("rowStart", sql.Int, rowStart);
+    request.input("rowEnd", sql.Int, rowEnd);
 
     const dataResult = await request.query(dataQuery);
     const countResult = await request.query(countQuery);
@@ -64,9 +91,9 @@ const usuario_repository = {
     return {
       data: dataResult.recordset,
       total: countResult.recordset[0].total,
-      page,
-      limit,
-      totalPages: Math.ceil(countResult.recordset[0].total / limit),
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(countResult.recordset[0].total / safeLimit),
     };
   },
 

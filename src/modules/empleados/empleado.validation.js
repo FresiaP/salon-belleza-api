@@ -32,7 +32,8 @@ const updateEmpleadoSchema = z.object({
       .regex(
         /^[a-zA-Z0-9-]+$/,
         "El DNI solo puede contener letras, números y guiones",
-      ),
+      )
+      .optional(),
     fecha_nacimiento: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido (YYYY-MM-DD)")
@@ -40,6 +41,7 @@ const updateEmpleadoSchema = z.object({
     telefono: z.string().min(7).max(20).optional(),
     domicilio: z.string().min(1).max(100).optional(),
     id_especialidad: z.number().nullable().optional(),
+    estado: z.boolean().optional(),
   }),
 });
 

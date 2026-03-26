@@ -1,7 +1,7 @@
 const toClienteDTO = (cli) => {
   const dto = {
     id: cli.id_cliente,
-    nombre: cli.nombre_cliente,
+    nombre: cli.nombre ?? cli.nombre_cliente,
     telefono: cli.telefono,
     email: cli.email,
     fechaNacimiento: cli.fecha_nacimiento,

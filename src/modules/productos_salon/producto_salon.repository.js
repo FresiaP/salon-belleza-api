@@ -41,12 +41,15 @@ const sortFields = {
 const producto_salon_repository = {
   async getProductosSalon({ page = 1, limit = 10, search, sort, dir }) {
     const pool = await poolPromise;
-    const offset = (page - 1) * limit;
+    const safePage = Math.max(parseInt(page, 10) || 1, 1);
+    const safeLimit = Math.max(parseInt(limit, 10) || 10, 1);
+    const rowStart = (safePage - 1) * safeLimit + 1;
+    const rowEnd = rowStart + safeLimit - 1;
 
     let where = "WHERE 1=1";
     const request = pool.request();
 
-    const sortField = sortFields[sort] || sortFields.id_producto;
+    const sortField = sort || "id_producto";
     const sortDirection = dir === "asc" ? "ASC" : "DESC";
 
     if (search) {
@@ -62,15 +65,22 @@ const producto_salon_repository = {
       request.input("search", sql.VarChar, `%${search}%`);
     }
 
-    request.input("offset", sql.Int, offset);
-    request.input("limit", sql.Int, limit);
+    request.input("rowStart", sql.Int, rowStart);
+    request.input("rowEnd", sql.Int, rowEnd);
 
     const dataResult = await request.query(`
-      ${baseSelect}
-      ${where}
-      ORDER BY ${sortField} ${sortDirection}
-      OFFSET @offset ROWS
-      FETCH NEXT @limit ROWS ONLY
+      SELECT *
+      FROM (
+        SELECT
+          base_result.*,
+          ROW_NUMBER() OVER (ORDER BY ${sortField} ${sortDirection}) AS row_num
+        FROM (
+          ${baseSelect}
+          ${where}
+        ) AS base_result
+      ) AS paginated
+      WHERE row_num BETWEEN @rowStart AND @rowEnd
+      ORDER BY row_num
     `);
 
     const countResult = await request.query(`
@@ -82,9 +92,9 @@ const producto_salon_repository = {
     return {
       data: dataResult.recordset,
       total: countResult.recordset[0].total,
-      page,
-      limit,
-      totalPages: Math.ceil(countResult.recordset[0].total / limit),
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(countResult.recordset[0].total / safeLimit),
     };
   },
 

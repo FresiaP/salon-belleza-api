@@ -35,10 +35,10 @@ router.put(
   proveedor_controller.updateProveedor,
 );
 
-// ACTUALIZAR SOLO ESTADO DE LA ESPECIALIDAD (requiere permiso especialidad_editar)
+// ACTUALIZAR SOLO ESTADO DEL PROVEEDOR (requiere permiso proveedor_editar)
 router.patch(
   "/:id/estado",
-  auth("especialidad_editar"),
+  auth("proveedor_editar"),
   validate(updateEstadoSchema),
   proveedor_controller.updateEstado,
 );
